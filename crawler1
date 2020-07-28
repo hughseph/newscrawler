@@ -1,0 +1,76 @@
+import pandas as pd
+import urllib
+import webbrowser
+import nltk
+from newspaper import Article
+import requests
+from bs4 import BeautifulSoup
+import locale
+locale.getpreferredencoding()
+
+# desktop user-agent
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
+# mobile user-agent
+# MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36"
+
+query = "蚂蚁金服"
+query = query.replace(' ', '+')
+URL = f"https://google.com/search?q=news{query}"
+
+headers = {"user-agent": USER_AGENT}
+resp = requests.get(URL, headers=headers)
+#f = open("nnews.txt","a")
+#f = open("news.txt", "a", encoding="utf-8")
+
+if resp.status_code == 200:
+    soup = BeautifulSoup(resp.content, "html.parser")
+    results = []
+    alink=[]
+    for g in soup.find_all('div', class_='r'):
+        anchors = g.find_all('a')
+        if anchors:
+            link = anchors[0]['href']
+            title = g.find('h3').text
+            item = {
+                "title": title,
+                "link": link
+            }
+            article = Article(link)
+            article.download()
+            article.parse()
+            print(article.text)
+            f = open("news.txt", "a", encoding="utf-8")
+            f.write(article.text)
+            #f.close()
+            results.append(item)
+            #alink.append(link)
+        f.close()
+
+   # print(results)
+    #print(alink)
+    print(link)
+    #webbrowser.open_new(link)
+    article = Article(link)
+    article.download()
+    article.parse()
+    #print(article.text)
+
+    f = open("nnews.txt","a")
+    #f = requests.get(link)
+    f.write(article.text)
+    f.close()
+
+    #print(f.text)
+
+
+
+
+    #news_link = pd.DataFrame(
+
+      # {'link': results}
+    #)
+
+    #print(news_link)
+    #news_link.to_csv('newslink.csv')
+   # article.text.to_csv('nnewslink.csv')
+    #print('end')
